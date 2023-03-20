@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"
+        integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+"
+        crossorigin="anonymous"></script>
+    <title>Messandger</title>
+</head>
+
+<body>
+    <h1>Messandger</h1>
+    <p id="p_count">site visitors: 1</p>
+
+    <input type="text" id="input" autofocus />
+    <input type="submit" id="send" value="Send" />
+    <div id="app"></div>
+</body>
+<script type="text/javascript">
+    const socket = io('localhost:3000');
+    socket.on('connect', () => {
+        console.log('Connection with localhost:3000 created');
+
+        socket.on('server-con', ({ count, id }) => {
+            document.getElementById('p_count').innerText = `site visitors: ${count}`;
+            console.log(id);
+            document.getElementById('p_count').append(document.createElement('br'));
+            document.getElementById('p_count')
+                .append(document.createElement('span').innerHTML = `User ${id} online`);
+        })
+        socket.on('server-discon', ({ count, id_dis }) => {
+            document.getElementById('p_count').innerText = `site visitors: ${count}`;
+            console.log(id_dis);
+            document.getElementById('p_count').append(document.createElement('br'));
+            document.getElementById('p_count')
+                .append(document.createElement('span').innerHTML = `User ${id_dis} offline`);
+        })
+    })
+    socket.on('server-msg', ({ msg, id }) => {
+        const msgSpan = document.createElement('span').innerHTML = `${id}: ${msg}`;
+        document.getElementById('app').append(msgSpan);
+        document.getElementById('app').append(document.createElement('br'));
+
+    })
+    document.getElementById('send').onclick = function () {
+        socket.emit('client-msg', { msg: document.getElementById('input').value })
+        document.getElementById('input').value = ''
+    }
+</script>
+
+
+</html>
